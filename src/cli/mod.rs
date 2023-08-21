@@ -1,5 +1,7 @@
 use clap::{Parser, Subcommand};
 
+use crate::handlers;
+
 #[derive(Debug, Parser)]
 #[command(name = "todo")]
 #[command(about = "A todo app", long_about = None)]
@@ -27,7 +29,14 @@ enum Commands {
         id: String,
 
         #[arg()]
-        todo: String
+        todo: String,
+    },
+    /// Lists all todos
+    List,
+    /// Starts a todo
+    Start {
+        #[arg()]
+        id: String
     },
     /// Completes a todo
     Complete {
@@ -36,21 +45,28 @@ enum Commands {
     },
 }
 
+
 pub fn parse() {
     let args = Cli::parse();
 
     match args.command {
         Commands::Add { todo } => {
-            println!("Adding todo {todo}");
+            handlers::add_todo(todo);
         },
         Commands::Delete { id } => {
-            println!("Removing todo w/ id {id}");
+            handlers::delete_todo(id);
         },
         Commands::Update { id, todo } => {
-            println!("Updating todo w/ id: {id} w/ data: {todo}");
+            handlers::update_todo(id, todo);
         },
+        Commands::List => {
+            handlers::list();
+        },
+        Commands::Start { id } => {
+            handlers::start(id);
+        }
         Commands::Complete { id } => {
-            println!("Completing todo w/ id {id}");
+            handlers::complete(id);
         },
     }
 }
