@@ -11,10 +11,10 @@ pub fn add_todo<T: adapters::Repository>(todo: String, repo: &mut T) {
     repo.add(todo);
 }
 
-pub fn list() {
-    println!("Listing all the things you have to do");
+pub fn list<T: adapters::Repository>(repo: &mut T) -> Vec<domain::Todo> {
+    println!("Listing all todos");
+    repo.list().to_owned()
 }
-
 
 pub fn update_todo(id: String, todo: String) {
     println!("Updating todo w/ id: {id} w/ data: {:?}", todo);

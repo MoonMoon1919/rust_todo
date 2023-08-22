@@ -61,7 +61,8 @@ pub fn parse<T: adapters::Repository>(repo: &mut T) {
             handlers::update_todo(id, todo);
         },
         Commands::List => {
-            handlers::list();
+            // Ideally this shouldn't use a mutable repo..
+            handlers::list(repo);
         },
         Commands::Start { id } => {
             handlers::start(id);
