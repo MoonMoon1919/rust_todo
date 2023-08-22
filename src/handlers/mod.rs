@@ -2,6 +2,7 @@
 use uuid::Uuid;
 use clap::ValueEnum;
 
+// Domain
 #[derive(Debug, ValueEnum, Clone, Copy, PartialEq, Eq)]
 pub enum Status {
     NotStarted,
@@ -25,8 +26,16 @@ impl Todo {
     }
 }
 
+// Adapters...
+pub trait Repository {
+    fn add(&self, todo: Todo) {}
+    fn get(&self, id: String) {}
+}
+
+
+
 // Service layer
-pub fn add_todo(todo: String) -> Todo {
+pub fn add_todo<T: Repository>(todo: String, repo: &T) -> Todo {
     let todo = Todo::new(todo);
 
     println!("New todo w/ id {}, data {}, status {:?}", todo.id, todo.item, todo.status);
@@ -34,28 +43,43 @@ pub fn add_todo(todo: String) -> Todo {
     todo
 }
 
-pub fn delete_todo(id: String) {
+pub fn delete_todo<T: Repository>(id: String, repo: &T) {
     println!("Removing todo w/ id {id}");
 }
 
-pub fn update_todo(id: String, todo: String) {
+pub fn update_todo<T: Repository>(id: String, todo: String, repo: &T) {
     println!("Updating todo w/ id: {id} w/ data: {:?}", todo);
 }
 
-pub fn list() {
+pub fn list<T: Repository>(repo: &T) {
     println!("Listing all the things you have to do");
 }
 
-pub fn start(id: String) {
+pub fn start<T: Repository>(id: String, repo: &T) {
     println!("Starting todo w/ id {id}");
 }
 
-pub fn complete(id: String) {
+pub fn complete<T: Repository>(id: String, repo: &T) {
     println!("Completing todo w/ id {id}");
 }
 
 #[cfg(test)]
 mod tests {
+    pub struct InMemoryRepository {
+        todos: Vec<Todo>
+    }
+
+    impl InMemoryRepository {
+        pub fn new() -> Self {
+            InMemoryRepository { todos: vec![] }
+        }
+    }
+
+    impl Repository for InMemoryRepository {
+        fn add(&self, todo: Todo) {}
+        fn get(&self, id: String) {}
+    }
+
     use super::*;
 
     #[test]
@@ -77,9 +101,10 @@ mod tests {
         // Given
         let todo = String::from("Test my code");
         let todo_cp = todo.clone();
+        let repo = InMemoryRepository::new();
 
         // When
-        let new_todo = add_todo(todo);
+        let new_todo = add_todo(todo, &repo);
 
         // Then
         assert_eq!(new_todo.item, todo_cp);
