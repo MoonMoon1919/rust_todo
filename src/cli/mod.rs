@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 
+use crate::adapters;
 use crate::handlers;
 
 #[derive(Debug, Parser)]
@@ -45,45 +46,28 @@ enum Commands {
     },
 }
 
-// Temp data store
-pub struct InMemoryRepository {
-    todos: Vec<handlers::Todo>
-}
 
-impl InMemoryRepository {
-    pub fn new() -> Self {
-        InMemoryRepository { todos: vec![] }
-    }
-}
-
-impl handlers::Repository for InMemoryRepository {
-    fn add(&self, todo: handlers::Todo) {}
-
-    fn get(&self, id: String) {}
-}
-
-pub fn parse() {
+pub fn parse<T: adapters::Repository>(repo: &mut T) {
     let args = Cli::parse();
-    let repo = InMemoryRepository::new();
 
     match args.command {
         Commands::Add { todo } => {
-            handlers::add_todo(todo, &repo);
+            handlers::add_todo(todo, repo);
         },
         Commands::Delete { id } => {
-            handlers::delete_todo(id, &repo);
+            handlers::delete_todo(id);
         },
         Commands::Update { id, todo } => {
-            handlers::update_todo(id, todo, &repo);
+            handlers::update_todo(id, todo);
         },
         Commands::List => {
-            handlers::list(&repo);
+            handlers::list();
         },
         Commands::Start { id } => {
-            handlers::start(id, &repo);
+            handlers::start(id);
         }
         Commands::Complete { id } => {
-            handlers::complete(id, &repo);
+            handlers::complete(id);
         },
     }
 }

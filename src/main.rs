@@ -1,6 +1,11 @@
 pub mod cli;
 mod handlers;
+mod adapters;
+mod domain;
 
 fn main() {
-    cli::parse();
+
+    let mut repo = adapters::InMemoryRepository::new();
+
+    cli::parse(&mut repo);
 }
