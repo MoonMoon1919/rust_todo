@@ -1,5 +1,4 @@
 /// Functions for performing operations on todos\
-
 use crate::adapters;
 use crate::domain;
 
@@ -49,8 +48,38 @@ pub fn delete<T: adapters::Repository>(id: &String, repo: &mut T) {
 #[cfg(test)]
 mod tests {
     use crate::adapters::Repository;
+    use std::collections::HashMap;
+
 
     use super::*;
+
+    pub struct InMemoryRepository {
+        todos: HashMap<String, domain::Todo>
+    }
+
+    impl InMemoryRepository {
+        pub fn new() -> Self {
+            InMemoryRepository { todos: HashMap::new() }
+        }
+    }
+
+    impl Repository for InMemoryRepository {
+        fn add(&mut self, todo: domain::Todo) {
+            self.todos.insert(todo.id().to_owned(), todo);
+        }
+
+        fn get(&self, id: &String) -> domain::Todo {
+            self.todos.get(id).unwrap().to_owned()
+        }
+
+        fn list(&self) -> Vec<domain::Todo> {
+            Vec::from_iter(self.todos.values().cloned())
+        }
+
+        fn delete(&mut self, id: &String) {
+            self.todos.remove(id);
+        }
+    }
 
     // Test svc layer
     #[test]
@@ -58,7 +87,7 @@ mod tests {
         // Given
         let todo = String::from("Test my code");
         let todo_cp = todo.clone();
-        let mut repo = adapters::InMemoryRepository::new();
+        let mut repo = InMemoryRepository::new();
 
         // When
         add(todo, &mut repo);
@@ -73,7 +102,7 @@ mod tests {
     fn test_listing_todos() {
         // Given
         let todo = String::from("Test my code");
-        let mut repo = adapters::InMemoryRepository::new();
+        let mut repo = InMemoryRepository::new();
         add(todo, &mut repo);
 
         // When
@@ -87,7 +116,7 @@ mod tests {
     fn test_updating_todo() {
         // Given
         let todo = String::from("Test my code");
-        let mut repo = adapters::InMemoryRepository::new();
+        let mut repo = InMemoryRepository::new();
         let id = add(todo, &mut repo);
         let updated_todo = String::from("Really test my code");
         let cloned_update = updated_todo.clone();
@@ -104,7 +133,7 @@ mod tests {
     fn test_starting_todo() {
         // Given
         let todo = String::from("Test my code");
-        let mut repo = adapters::InMemoryRepository::new();
+        let mut repo = InMemoryRepository::new();
         let id = add(todo, &mut repo);
 
         // When
@@ -119,7 +148,7 @@ mod tests {
     fn test_completing_todo() {
         // Given
         let todo = String::from("Test my code");
-        let mut repo = adapters::InMemoryRepository::new();
+        let mut repo = InMemoryRepository::new();
         let id = add(todo, &mut repo);
 
         // When

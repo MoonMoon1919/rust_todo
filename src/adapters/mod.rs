@@ -1,4 +1,9 @@
+use std::fs::{File, OpenOptions};
 use std::collections::HashMap;
+use std::io::BufReader;
+use std::path;
+
+use serde_json;
 
 use crate::domain;
 
@@ -13,19 +18,58 @@ pub trait Repository {
     fn delete(&mut self, #[allow(unused)] id: &String) {}
 }
 
-pub struct InMemoryRepository {
-    todos: HashMap<String, domain::Todo>
+pub struct FileSystemRepository {
+    todos: HashMap<String, domain::Todo>,
+    db_file: String
 }
 
-impl InMemoryRepository {
+impl FileSystemRepository {
     pub fn new() -> Self {
-        InMemoryRepository { todos: HashMap::new() }
+        let file = File::open(path::Path::new("db.json")).unwrap();
+        let reader = BufReader::new(file);
+
+        let data = serde_json::from_reader(reader);
+
+        let loaded_map = match data {
+            Ok(d) => {
+                println!("{:?}", d);
+                d
+            },
+            _ => HashMap::new(),
+        };
+
+        FileSystemRepository {
+            todos: loaded_map,
+            db_file: String::from("db.json")
+        }
+    }
+
+    fn check_or_create_db(&self, path: &path::Path) {
+        let exists = path.exists();
+
+        if !exists {
+            let _ = File::create(path);
+        }
+    }
+
+    fn flush(&self) {
+        self.check_or_create_db(&path::Path::new(&self.db_file));
+
+        let writer = OpenOptions::new()
+            .write(true)
+            .append(false)
+            .open(&self.db_file)
+            .unwrap();
+
+        let _ = serde_json::to_writer(writer, &self.todos);
     }
 }
 
-impl Repository for InMemoryRepository {
+impl Repository for FileSystemRepository {
     fn add(&mut self, todo: domain::Todo) {
         self.todos.insert(todo.id().to_owned(), todo);
+
+        self.flush();
     }
 
     fn get(&self, id: &String) -> domain::Todo {
@@ -38,5 +82,7 @@ impl Repository for InMemoryRepository {
 
     fn delete(&mut self, id: &String) {
         self.todos.remove(id);
+
+        self.flush();
     }
 }

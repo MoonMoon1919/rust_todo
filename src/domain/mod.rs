@@ -1,14 +1,15 @@
 use uuid::Uuid;
 use clap::ValueEnum;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, ValueEnum, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, ValueEnum, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Status {
     NotStarted,
     InProgress,
     Completed,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Todo {
     id: String,
     item: String,

@@ -5,7 +5,7 @@ mod domain;
 
 fn main() {
 
-    let mut repo = adapters::InMemoryRepository::new();
+    let mut repo = adapters::FileSystemRepository::new();
 
     cli::parse(&mut repo);
 }
