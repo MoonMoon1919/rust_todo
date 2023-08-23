@@ -32,6 +32,15 @@ impl Todo {
         &self.item
     }
 
+    pub fn status(&self) -> &Status {
+        &self.status
+    }
+
+    pub fn update_item(&mut self, item: String) -> &str {
+        self.item = item;
+        &self.item
+    }
+
     pub fn start(&mut self) {
         self.status = Status::InProgress;
     }

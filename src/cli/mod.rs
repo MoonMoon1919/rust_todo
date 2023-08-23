@@ -52,23 +52,23 @@ pub fn parse<T: adapters::Repository>(repo: &mut T) {
 
     match args.command {
         Commands::Add { todo } => {
-            handlers::add_todo(todo, repo);
+            handlers::add(todo, repo);
         },
         Commands::Delete { id } => {
-            handlers::delete_todo(id);
+            handlers::delete(&id, repo);
         },
         Commands::Update { id, todo } => {
-            handlers::update_todo(id, todo);
+            handlers::update(&id, todo, repo);
         },
         Commands::List => {
             // Ideally this shouldn't use a mutable repo..
             handlers::list(repo);
         },
         Commands::Start { id } => {
-            handlers::start(id);
+            handlers::start(&id, repo);
         }
         Commands::Complete { id } => {
-            handlers::complete(id);
+            handlers::complete(&id, repo);
         },
     }
 }
