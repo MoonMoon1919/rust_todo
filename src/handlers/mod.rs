@@ -10,17 +10,27 @@ pub fn add<T: adapters::Repository>(todo: String, repo: &mut T) -> String {
 
     repo.add(todo);
 
+    println!("Added todo with id {id}");
+
     id
 }
 
 pub fn list<T: adapters::Repository>(repo: &mut T) -> Vec<domain::Todo> {
-    repo.list().to_owned()
+    let todos = repo.list().to_owned();
+
+    for todo in &todos {
+        println!("{}", todo);
+    }
+
+    todos
 }
 
 pub fn update<T: adapters::Repository>(id: &String, todo: String, repo: &mut T) {
     let mut item: domain::Todo = repo.get(id);
 
     item.update_item(todo);
+
+    println!("Updated todo with id {id}");
 
     repo.add(item)
 }
@@ -30,6 +40,8 @@ pub fn start<T: adapters::Repository>(id: &String, repo: &mut T) {
 
     item.start();
 
+    println!("Started todo with id {id}");
+
     repo.add(item)
 }
 
@@ -37,6 +49,8 @@ pub fn complete<T: adapters::Repository>(id: &String, repo: &mut T) {
     let mut item: domain::Todo = repo.get(id);
 
     item.complete();
+
+    println!("Completed todo with id {id}");
 
     repo.add(item)
 }

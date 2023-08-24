@@ -32,7 +32,6 @@ impl FileSystemRepository {
 
         let loaded_map = match data {
             Ok(d) => {
-                println!("{:?}", d);
                 d
             },
             _ => HashMap::new(),

@@ -1,3 +1,4 @@
+use std::fmt;
 use uuid::Uuid;
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
@@ -48,6 +49,12 @@ impl Todo {
 
     pub fn complete(&mut self) {
         self.status = Status::Completed;
+    }
+}
+
+impl fmt::Display for Todo {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} | {} | {:?}", self.id, self.item, self.status)
     }
 }
 
